@@ -2,17 +2,17 @@ datasg segment para 'data'
     mess1 db 'Enter keyword: ',13,10,'$'   ; 提示用户输入stock number的信息
     mess2 db 'Enter Sentence: ',13,10,'$'
     stoknin label byte
-        max dw 10   
-        act dw ?    ; 用户输入的实际字符数
-        stokn dw 10 dup(?)   ; 用户输入的stock number
+        max db 10   
+        act db ?    ; 用户输入的实际字符数
+        stokn db 10 dup(?)   ; 用户输入的stock number
     stoktstc label byte
-        max2 dw 100
-        act2 dw ?
-        stokn2 dw 100 dup(?)
+        max2 db 100
+        act2 db ?
+        stokn2 db 100 dup(?)
     descrn db 14 dup(20h),13,10,'$'     ; 存储描述信息的缓冲区，初始为14个空格，然后是回车换行符和'$'结束符
     mess db 'No match. ','$'        ; 当输入的stock number不在表格中时，显示的消息
-    Mess_1 db 'Match at location: '
-    Mess_2 db 'H of the sentence',13,10,'$'
+    Mess_1 db 'Match at location: ','$'
+    Mess_2 db 'H of the sentence.',13,10,'$'
 datasg ends
 ;
 codesg segment para 'code'
@@ -29,49 +29,49 @@ main proc far
 start:
     lea dx,mess1         ; 将mess1的地址加载到dx寄存器
     mov ah,09            ; 设置ah寄存器，表示要调用的功能是显示字符串
-    int 21h               ; 调用21h中断，显示提示信息，等待用户输入
-    lea dx,stoknin       ; 将stoknin的地址加载到dx寄存器
-    mov ah,0ah           ; 设置ah寄存器，表示要调用的功能是输入字符串
-    int 21h               ; 调用21h中断，等待用户输入
+    int 21h              
+    lea dx,stoknin       ;输入关键字
+    mov ah,0ah            
+    int 21h               
 sentence:
-    lea dx,mess2
+    lea dx,mess2        ;同上，输入长句子
     mov ah,09
     int 21h
     lea dx,stoktstc
     mov ah,0ah
     int 21h
-    cmp act,0            ; 比较用户输入的字符数是否为0
+    cmp stokn2,'#'            ; 结束程序
     je exit               ; 如果为0，直接退出程序
     
-    lea di,stoktstc
-    add di,2
+    lea di,stokn2         ;di指向输入的长句子
     mov cx,0
 recmp:
-    lea si,stoknin
-    add si,2
+    lea si,stokn          ;si指向关键词
     mov dx,0
 compare:
-    mov ax,0
+    mov ax,0              ;因为单位是字节，计数器用的寄存器地位，把高位置0以防cmp出错
     mov bx,0
     mov al,[si]
     mov bl,[di]
     add di,1
-    cmp ax,bx
-    jne recmp
-    add si,1
-    add dx,1
     add cx,1
-    cmp dx,act
+    cmp cl,act2
+    ja notmatch         ;如果cl-act2>0说明输入的长句子已经被比完了，cx已经大于其长度，所以不匹配
+    cmp ax,bx
+    jne recmp           ;匹配了一个字符，跳转继续匹配
+    add si,1
+    add dx,1            ;dx记录了匹配成功了几个字符，因为是字节操作，比较时用dl低位
+    cmp dl,act          ;当dl和关键词长度相同代表匹配成功,跳转
     je ismatch
-    cmp cx,act2
-    je notmatch
     jmp compare
 ismatch:
-    lea dx,Mess_1
+    lea dx,Mess_1       ;输出：Match at location: 
     mov ah,09
     int 21h
     xor dx,dx
-    mov ax,cx
+    sub cl,act
+    add cl,1
+    mov ax,cx          ;把位置转换成10进制数的ASCII码输出
     mov bx,10
     div bx
     add al,'0'
@@ -82,17 +82,15 @@ ismatch:
     int 21h
     mov dl,dh
     int 21h
-    mov dl,10
-    int 21h
-    lea dx,Mess_2
+    lea dx,Mess_2   ;输出：H of the sentence
     mov ah,09
     int 21h
-    jmp sentence
+    jmp sentence    ;跳转，继续比对新的输入长句
 notmatch:
-    lea dx,mess
+    lea dx,mess     ;输出： No match. 
     mov ah,09
     int 21h
-    jmp sentence
+    jmp sentence    ;跳转，继续比对新的输入长句
 
 exit:
     ret                    ; 返回，结束程序
