@@ -59,7 +59,6 @@ compare:
     add dl,1
     cmp dl,act
     je ismatch
-    cmp
     
     loop compare
 ismatch:
