@@ -75,16 +75,24 @@ ismatch:
     xor dx,dx
     sub cl,act
     add cl,1
-    mov ax,cx          ;把位置转换成10进制数的ASCII码输出
-    mov bx,10
+    mov ax,cx          ;把位置转换成16进制数的ASCII码输出
+    mov bx,16
     div bx
     add al,'0'
     add dl,'0'
     mov dh,dl
     mov dl,al
+    cmp dl,'9'         ;如果小于等于'9'则直接输出就行，大了就要加7让他显示A～F
+    jbe display1
+    add dl,7
+display1:
     mov ah,2
     int 21h
     mov dl,dh
+    cmp dl,'9'
+    jbe display2
+    add dl,7
+display2: 
     int 21h
     lea dx,Mess_2   ;输出：H of the sentence
     mov ah,09
