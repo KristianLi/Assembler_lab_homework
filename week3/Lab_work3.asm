@@ -58,12 +58,16 @@ compare:
     cmp cl,act2
     ja notmatch         ;如果cl-act2>0说明输入的长句子已经被比完了，cx已经大于其长度，所以不匹配
     cmp ax,bx
-    jne recmp           ;匹配了一个字符，跳转继续匹配
+    jne recmp1           ;不匹配，跳转重来
     add si,1
     add dx,1            ;dx记录了匹配成功了几个字符，因为是字节操作，比较时用dl低位
     cmp dl,act          ;当dl和关键词长度相同代表匹配成功,跳转
     je ismatch
     jmp compare
+recmp1:
+    sub cx,dx           ;回退长句比过的部分
+    sub di,dx
+    jmp recmp
 ismatch:
     lea dx,Mess_1       ;输出：Match at location: 
     mov ah,09
