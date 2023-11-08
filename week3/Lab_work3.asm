@@ -66,7 +66,7 @@ compare:
     jmp compare
 recmp1:
     sub cx,dx           ;回退长句比过的部分
-    sub di,dx
+    sub di,dx           ;对应指针回退
     jmp recmp
 ismatch:
     lea dx,Mess_1       ;输出：Match at location: 
