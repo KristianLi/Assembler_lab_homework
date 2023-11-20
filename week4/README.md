@@ -11,16 +11,16 @@ P67 实验2.4 查找电话号码
 3.提示：程序采用子程序结构。主程序的主要部分如下：
 
 - 显示提示符 Input name： ；
-- 週用子程序 input-name 接收人名；
-- 调用子程序 stor-name把人名存入电话号码表teltab 中；
+- 週用子程序 input_name 接收人名；
+- 调用子程序 stor_name把人名存入电话号码表teltab 中；
 - 显示提示符'Input a telephone number：'
 - 调用子程序 inphone接收电话号码，并把它存入电话号码表 tel-tab 中;
-- 如输入已结束则调用 name sort于程序对电话号码表按人名排序；
+- 如输入已结束则调用 name_sort子程序对电话号码表按人名排序；
 - 显示提示符Do you wantia telephone number？ （Y/N）'；
 - 回答 N则退出程序；
 - 回答Y则再显示提示符'name？';
-- 调用子程序 input-name 接收人名；
-- 调用子程序 name search 在电话号码表中查找所要的电话号码；
+- 调用子程序 input_name 接收人名；
+- 调用子程序 name_search 在电话号码表中查找所要的电话号码；
 - 调用子程序 printline按要求格式显示人名及电话号码；
 - 重复查号提示符直至用户不再要求查号为止。
 
