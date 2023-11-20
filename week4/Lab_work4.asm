@@ -3,8 +3,17 @@ datasg segment
     mess2 db 'Input a telephone number: ',13,10,'$'
     mess3 db 'Do you want a telephone number?(Y/N)',13,10,'$'
 
-    name db 1000 dup(?),13,10,'$'
-    phone db 400 dup(?),13,10,'$'
+    name_data label byte
+        max db 20
+        act db ?
+        input db 20 dup(?)
+    phone_data label byte
+        max2 db 8
+        act2 db ?
+        input2 db 8 dup(?)
+
+    name_sort_data db 1000 dup(?),'$'
+    phone_sort_data db 400 dup(?),'$'
 datasg ends
 codesg segment
     assume cs:codesg,ds:datasg,es:datasg
@@ -23,10 +32,12 @@ start:
 
 
     call input_name         ;输入name
+    call name_sort
     mov ah,9h
     mov dx,offset mess2
     int 21h
     call inphone            ;输入phone
+    call phone_sort
     mov ah,9h
     mov dx,offset mess3
     int 21h
@@ -60,7 +71,7 @@ input_name proc near      ; 输入name
     push dx
 
     mov ah,0ah
-    mov dx,di
+    lea dx,name_data
     int 21h
 
     pop dx
@@ -76,10 +87,44 @@ stor_name proc
 stor_name endp
 
 inphone proc
+    push ax
+    push bx
+    push cx
+    push dx
+
+    mov ah,0ah
+    lea dx,phone_data
+    int 21h
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 inphone endp
 
 name_sort proc
+    push ax
+    push bx
+    push cx
+    push dx 
+
+    mov ax,offset name_data
+    mov bx,offset name_sort_data
+    mov cx,word ptr [ax+1]
+    mov dx,word ptr [bx+1]
+    mov si,2
+    mov di,2
+    mov cl,byte ptr [ax+1]
+    mov dl,byte ptr [bx+1]
+    cmp cl,dl
+    jae name_sort1
+    
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 name_sort endp
 
