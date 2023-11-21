@@ -6,16 +6,16 @@ datasg segment
     mess5 db 'not exit!',13,10,'$'
 
     name_data label byte
-        max db 20
+        max db 21
         act db ?
-        input db 20 dup(?)
+        input db 21 dup(?)
     phone_data label byte
-        max2 db 8
+        max2 db 9
         act2 db ?
-        input2 db 8 dup(?)
+        input2 db 9 dup(?)
 
-    name_sort_data db 1000 dup('$')
-    phone_sort_data db 400 dup('$')
+    name_sort_data db 1050 dup('$')
+    phone_sort_data db 450 dup('$')
 
     p1 db 0     ;name_sort_data的偏移量
     p2 db 0     ;phone_sort_data的偏移量
@@ -70,6 +70,9 @@ check:
     je  yes
     jne no
 yes:
+    mov ah,02
+    mov dl,10
+    int 21h
     mov ah,9h
     mov dx,offset mess4
     int 21h
@@ -121,8 +124,8 @@ loop1:
     inc si
     loop loop1
 
-    add p1,20
-    add p_cmpend,20
+    add p1,21
+    add p_cmpend,21
 
     pop dx
     pop cx
@@ -143,7 +146,9 @@ inphone proc
     mov cx,0
     mov cl,act2
     lea di,phone_sort_data
-    add di,word ptr p2
+    mov ax,0
+    mov al,p2
+    add di,ax
     lea si,input2
 
 loop2:
@@ -153,7 +158,7 @@ loop2:
     inc si
     loop loop2
 
-    add p2,8
+    add p2,9
 
     pop dx
     pop cx
@@ -172,11 +177,11 @@ name_sort proc
     mov al,p1
     mov p_cmpend,al
 stringcmp_out:
-    mov cx,20
+    mov cx,21
     mov p_name_front,0
-    mov p_name_back,20
+    mov p_name_back,21
     mov p_phone_front,0
-    mov p_phone_back,8
+    mov p_phone_back,9
 
 stringcmp:
     lea si,name_sort_data
@@ -206,7 +211,7 @@ swap_name:
     inc di
     loop swap_name
 
-    mov cx,8
+    mov cx,9
     lea si,phone_sort_data
     lea di,phone_sort_data
     mov al,p_phone_front
@@ -223,18 +228,18 @@ swap_phone:
     loop swap_phone 
 
 next:
-    add p_name_front,20
-    add p_name_back,20
-    add p_phone_front,8
-    add p_phone_back,8 
-    mov cx,20
+    add p_name_front,21
+    add p_name_back,21
+    add p_phone_front,9
+    add p_phone_back,9
+    mov cx,21
     lea si,p_name_back
     lea di,p_cmpend
     mov ax,[si]
     mov bx,[di]
     cmp ax,bx
     jng stringcmp       ;如果p_name_back<p_cmpend,继续比较
-    sub p_cmpend,20     ;否则p_cmpend-20
+    sub p_cmpend,21     ;否则p_cmpend-21
     cmp p_cmpend,0      ;如果p_cmpend=0,说明已经比较完毕
     jne stringcmp_out       ;否则继续比较
 
@@ -274,9 +279,9 @@ cmp_for_search:
     call printline
     jmp search_end
 next1:
-    add p_check_name,20
-    add p_check_phone,8
-    mov cx,20
+    add p_check_name,21
+    add p_check_phone,9
+    mov cx,21
     lea si,p_check_name
     lea di,p1
     mov al,[si]
@@ -320,6 +325,9 @@ print:
     jmp print
     
 printline_end:
+    mov ah,2
+    mov dl,10
+    int 21h
     pop dx
     pop cx
     pop bx
