@@ -188,6 +188,8 @@ stringcmp:
 cmp1:
     mov al,[si]
     mov bl,[di]
+    cmp bl,'$'
+    je sort_end
     cmp al,bl
     jg swap
     inc si
@@ -259,8 +261,10 @@ cmp_for_search:
     lea si,name_sort_data
     lea di,input
     mov al,p_check_name
-    add di,ax
+    add si,ax
     mov al,[si]
+    cmp al,'$'
+    je not_exit
     mov bl,[di]
     cmp al,bl
     jne next1
@@ -281,6 +285,10 @@ next1:
     jng cmp_for_search   ;如果p_check_name<p1,继续比较
     mov ax,09h
     mov dx,offset mess5 ;否则输出not exit
+    int 21h
+not_exit:
+    mov ah,09h
+    mov dx,offset mess5
     int 21h
 
 search_end:
