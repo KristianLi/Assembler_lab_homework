@@ -9,11 +9,11 @@ datasg segment
     name_data label byte
         max db 21
         act db ?
-        input db 21 dup(?)
+        input db 21 dup('$')
     phone_data label byte
         max2 db 9
         act2 db ?
-        input2 db 9 dup(?)
+        input2 db 9 dup('$')
 
     name_sort_data db 1050 dup('$')
     phone_sort_data db 450 dup('$')
