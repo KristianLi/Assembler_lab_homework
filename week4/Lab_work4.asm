@@ -4,6 +4,7 @@ datasg segment
     mess3 db 'Do you want a telephone number?(Y/N)',13,10,'$'
     mess4 db 'Name?',13,10,'$'
     mess5 db 'not exit!',13,10,'$'
+    mess6 db 'name                     phone number',13,10,'$'
 
     name_data label byte
         max db 21
@@ -66,7 +67,7 @@ check:
     int 21h
     mov ah,1
     int 21h
-    cmp al,'Y' or 'y'
+    cmp al,'Y'
     je  yes
     jne no
 yes:
@@ -77,9 +78,23 @@ yes:
     mov dx,offset mess4     ;Name?
     int 21h
     call input_name         ;输入name
-    mov ah,02
-    mov dl,10
+    mov ah,9h
+    mov dx,offset mess6     ;name phone
     int 21h
+    mov cl,act
+    mov ch,0
+    lea si,input
+print_name:
+    mov ah,2
+    mov dl,[si]
+    int 21h
+    inc si
+    loop print_name
+    mov cx,19
+print_space:
+    mov dl,' '
+    int 21h
+    loop print_space
     call name_search        ;查找name
     jmp check
 no:
@@ -205,6 +220,12 @@ cmp1:
     loop cmp1
     jmp next
 swap:
+    lea si,name_sort_data
+    mov al,p_name_front
+    add si,ax
+    lea di,name_sort_data
+    mov al,p_name_back
+    add di,ax
 swap_name:
     mov al,[si]
     mov bl,[di]
