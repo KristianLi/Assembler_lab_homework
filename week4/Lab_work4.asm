@@ -19,14 +19,14 @@ datasg segment
 
     p1 db 0     ;name_sort_data的偏移量
     p2 db 0     ;phone_sort_data的偏移量
-    p_name_front db 0     
-    p_name_back db 0
-    p_phone_front db 0
-    p_phone_back db 0
-    p_cmpend db 0
-    p_check_name db 0
-    p_check_phone db 0
-    yes_no db 0
+    p_name_front db 0       ;name_sort_data的前指针
+    p_name_back db 0        ;name_sort_data的后指针
+    p_phone_front db 0      ;phone_sort_data的前指针
+    p_phone_back db 0       ;phone_sort_data的后指针
+    p_cmpend db 0           ;name_sort_data的末尾指针
+    p_check_name db 0       ;name_sort_data的检查指针
+    p_check_phone db 0      ;phone_sort_data的检查指针
+    yes_no db 0             ;是否查找phone number
 
 datasg ends
 codesg segment
@@ -43,8 +43,8 @@ start:
     mov es,ax
                             ;八股文结束
 input_cycle:
-    mov ah,9h               ;显示提示信息
-    mov dx,offset mess1
+    mov ah,9h               
+    mov dx,offset mess1     ;Input name
     int 21h
 
 
@@ -53,7 +53,7 @@ input_cycle:
     je  input_end           ;如果输入为空，跳转到input_end
     call stor_name          ;存储name
     mov ah,9h
-    mov dx,offset mess2
+    mov dx,offset mess2     ;Input a telephone number
     int 21h
     call inphone            ;输入phone
     jmp input_cycle
@@ -66,17 +66,20 @@ check:
     int 21h
     mov ah,1
     int 21h
-    cmp al,'Y'
+    cmp al,'Y' or 'y'
     je  yes
     jne no
 yes:
     mov ah,02
     mov dl,10
-    int 21h
+    int 21h                 ;换行
     mov ah,9h
-    mov dx,offset mess4
+    mov dx,offset mess4     ;Name?
     int 21h
     call input_name         ;输入name
+    mov ah,02
+    mov dl,10
+    int 21h
     call name_search        ;查找name
     jmp check
 no:
@@ -262,11 +265,11 @@ name_search proc
     mov cl,act
     mov p_check_name,0
     mov p_check_phone,0
-cmp_for_search:
     lea si,name_sort_data
     lea di,input
     mov al,p_check_name
     add si,ax
+cmp_for_search:
     mov al,[si]
     cmp al,'$'
     je not_exit
@@ -281,11 +284,12 @@ cmp_for_search:
 next1:
     add p_check_name,21
     add p_check_phone,9
-    mov cx,21
-    lea si,p_check_name
-    lea di,p1
-    mov al,[si]
-    mov bl,[di]
+    mov cl,act
+    lea si,name_sort_data
+    lea di,input
+    mov al,p_check_name
+    add si,ax
+    mov bl,p1
     cmp al,bl
     jng cmp_for_search   ;如果p_check_name<p1,继续比较
     mov ax,09h
@@ -312,7 +316,7 @@ printline proc
 
     lea si,phone_sort_data
     mov ax,0
-    mov al,p_check_name
+    mov al,p_check_phone
     add si,ax
 print:
     mov al,[si]
